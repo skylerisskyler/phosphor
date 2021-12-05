@@ -13,16 +13,16 @@ colors = [
   "magenta"
 ]
 
-async def hello(websocket, path):
-    name = await websocket.recv()
+async def handleMessage(websocket, path):
+  while True:
+    message = await websocket.recv()
     for color in colors:
       await websocket.send(color)
       await asyncio.sleep(2)
-    # print("< {}".format(name))
-    # greeting = "Hello {}!".format(name)
-    # print("> {}".format(greeting))
+      print(message)
 
-start_server = websockets.serve(hello, 'localhost', 8765)
+
+start_server = websockets.serve(handleMessage, 'localhost', 8765)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
