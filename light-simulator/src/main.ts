@@ -19,6 +19,9 @@ const light = document.createElement('li')
 lights.appendChild(light);
 
 
+const button = document.querySelector<HTMLDivElement>('#button')!
+button.onclick=requestData;
+
 // const colors: string[] = [
 //   'black',
 //   'orange',
@@ -57,4 +60,9 @@ ws.onopen = (event: Event) => {
 
 ws.onmessage = (event: Event) => {
   light.style.setProperty('background-color', (event as any).data)
+}
+
+function requestData(){
+  console.log('clicked')
+  ws.send(JSON.stringify({type: "animation"}))
 }
