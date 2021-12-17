@@ -1,0 +1,53 @@
+{
+  "alias": "New Script",
+  "sequence": [
+    {
+      "choose": [
+        {
+          "conditions": [
+            {
+              "condition": "state",
+              "entity_id": "input_boolean.phosphor_expose_doorbell",
+              "state": "on"
+            }
+          ],
+          "sequence": [
+            {
+              "service": "input_select.select_option",
+              "target": {
+                "entity_id": "input_select.phosphor_expose_light_living_room"
+              },
+              "data": {
+                "option": "doorbell"
+              }
+            }
+          ]
+        },
+        {
+          "conditions": [
+            {
+              "condition": "state",
+              "entity_id": "input_boolean.phosphor_expose_theater",
+              "state": "on"
+            }
+          ],
+          "sequence": [
+            {
+              "service": "input_select.select_option",
+              "data": {
+                "option": "doorbell"
+              },
+              "target": {
+                "entity_id": "input_select.phosphor_expose_light_living_room"
+              }
+            }
+          ]
+        }
+      ],
+      "default": [
+
+      ]
+    }
+  ],
+  "mode": "single"
+}

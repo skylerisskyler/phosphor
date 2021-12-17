@@ -1,0 +1,129 @@
+input_number:
+  phosphor_var_circadian_temp:
+    name: Slider
+    min: 2700
+    max: 6500
+    step: 1
+  phosphor_var_circadian_bri:
+    name: Slider
+    min: 0
+    max: 100
+    step: 1
+  phosphor_var_volume_controlled:
+    name: Slider
+    min: 0
+    max: 100
+    step: 1
+input_boolean:
+  phosphor_expose_doorbell:
+    name: "Phosphor: doorbell status"
+  phosphor_expose_circadian:
+    name: "Phosphor: circadian status"
+  phosphor_expose_theater:
+    name: "Phosphor: theater status"
+input_select:
+  phosphor_expose_light_living_room:
+    name: "Phosphor: living_room light expose"
+    options:
+      - doorbell
+      - theater
+      - circadian
+script:
+  phosphor_set_light_living_room_expose_doorbell:
+    alias: "Phosphor: set living_room to expose doorbell"
+    sequence:
+      - condition: state
+        entity_id: input_select.phosphor_expose_light_living_room
+        state: doorbell
+      - service: light.turn_on
+        target:
+          entity_id: light.living_room
+        data:
+          brightness_pct: "100"
+          color_name: blue
+    mode: single
+  phosphor_set_light_living_room_expose_theater:
+    alias: "Phosphor: set living_room to expose theater"
+    sequence:
+      - condition: state
+        entity_id: input_select.phosphor_expose_light_living_room
+        state: theater
+      - service: light.turn_on
+        target:
+          entity_id: light.living_room
+        data:
+          brightness: "{{ input_number.phosphor_var_volume_controlled | int }}"
+          color_name: orange
+    mode: single
+  phosphor_set_light_living_room_expose_circadian:
+    alias: "Phosphor: set living_room to expose circadian"
+    sequence:
+      - condition: state
+        entity_id: input_select.phosphor_expose_light_living_room
+        state: circadian
+      - service: light.turn_on
+        target:
+          entity_id: light.living_room
+        data:
+          color_temp: "{{ input_number.phosphor_var_circadian_temp | int }}"
+          brightness: "{{ input_number.phosphor_var_circadian_bri | int }}"
+    mode: single
+  phosphor_update_expose_light_living_room:
+    alias: "Phosphor: update the input select for living room expose"
+    sequence:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.phosphor_expose_doorbell
+                state: 'on'
+            sequence:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.phosphor_expose_light_living_room
+                data:
+                  option: doorbell
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.phosphor_expose_theater
+                state: 'on'
+            sequence:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.phosphor_expose_light_living_room
+                data:
+                  option: theater
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.phosphor_expose_circadian
+                state: 'on'
+            sequence:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.phosphor_expose_light_living_room
+                data:
+                  option: circadian
+automation:
+  handle_expose_change_doorbell:
+    alias: New Automation
+    trigger:
+      - platform: state
+        entity_id: handle_expose_change_doorbell
+    action:
+      - service: script.phosphor_set_light_living_room_expose_doorbell
+    mode: single
+  handle_expose_change_circadian:
+    alias: New Automation
+    trigger:
+      - platform: state
+        entity_id: handle_expose_change_circadian
+    action:
+      - service: script.phosphor_set_light_living_room_expose_circadian
+    mode: single
+  handle_expose_change_theater:
+    alias: New Automation
+    trigger:
+      - platform: state
+        entity_id: handle_expose_change_theater
+    action:
+      - service: script.phosphor_set_light_living_room_expose_theater
+    mode: single
